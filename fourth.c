@@ -1,230 +1,157 @@
-//prisms algo
-#include <stdio.h>
-#include <stdlib.h>
+#include <iostream>
+#include <vector>
+#include <queue>
+#include <utility>
+#include <climits>
 
-void prism(int n,int a[10][10])
-{
-    int i,j,min,mina = 0,visited[10],ne =1;
-    for(i=1;i<=n;i++)
-    visited[i]=0;
-    
-    printf("The edges considered for MST are\n");
-    visited[1] = 1;
-    
-    while(ne < n){
-        for(i=1;min = 999;i<=n; i++){
-            for(j=1;j<=n;j++){
-                if(a[i][j] < min){
-                    if(visited[i]==0){
-                        continue;
-                        }
-                    else{
-                        min = a[i],[j];
-                        u=i;
-                        v=j;
-                    }
-                        
-                }
-                if(visited[u] == 0 || visited[v] == 0){
-                    printf("%d Edge (%d,%d) = %d",ne++,u,v,min);
-                    mina = mina + min;
-                    visited[v]=1;
-                }
-                a[u][v] = a[v][u] = 999;
-            }
-            
-        }
-    }
-    printf("\n the cost of construsting MST is %a",mina);
-}
+using namespace std;
 
-int main()
-{
-    int i,j,n,a[10][10];
-    printf("Enter the number of nodes\n");
-    scanf("%d",&n);
-    
-    printf("Eter the cost matrix\n");
-    for(i=1;i<n;i++){
-        for(j=1;j<n;j++){
-            scanf("%d",&a[i][j]);
-            if(a[i][j]==0)
-            a[i][j] = 999;
-        }
-    }
-    
-    prism(n , a);
-    
-    return 0;
-}
+typedef pair<int, int> P; // (weight, vertex)
 
+void prim(vector<vector<P>>& graph, int start) {
+    int n = graph.size();
+    vector<int> key(n, INT_MAX);
+    vector<bool> inMST(n, false);
+    priority_queue<P, vector<P>, greater<P>> pq;
 
-output: 
-0 2 0 6
-2 0 3 8
-0 3 0 0
-6 8 0 0
+    key[start] = 0;
+    pq.push({0, start});
 
-//dijkstr algo
-  #include <stdio.h>
-#include <stdlib.h>
+    while (!pq.empty()) {
+        int u = pq.top().second;
+        pq.pop();
 
-void dijkstra(int n, int a[10][10], int s, int dist[10]) {
-    int i, v, count, min, visited[10];
+        if (inMST[u]) continue;
+        inMST[u] = true;
 
-    for (i = 0; i < n; i++) {
-        visited[i] = 0;
-        dist[i] = a[s][i];
-    }
-    visited[s] = 1;
-    dist[s] = 0;
-
-    for (count = 1; count < n; count++) {
-        min = 999;
-        for (i = 0; i < n; i++) {
-            if (dist[i] < min && visited[i] == 0) {
-                min = dist[i];
-                v = i;
+        for (const auto& edge : graph[u]) {
+            int v = edge.second;
+            int wt = edge.first;
+            if (!inMST[v] && key[v] > wt) {
+                key[v] = wt;
+                pq.push({wt, v});
             }
         }
-        visited[v] = 1;
-        for (i = 0; i < n; i++) {
-            if (!visited[i] && dist[v] + a[v][i] < dist[i]) {
-                dist[i] = dist[v] + a[v][i];
-            }
+    }
+
+    for (int i = 0; i < n; ++i) {
+        if (i != start) {
+            cout << "Edge: " << i << " - Cost: " << key[i] << endl;
         }
     }
 }
 
 int main() {
-    int i, j, n, s, a[10][10], dist[10];
+    int n = 5; // Number of vertices
+    vector<vector<P>> graph(n);
 
-    printf("Enter the number of nodes\n");
-    scanf("%d", &n);
+    graph[0].push_back({2, 1});
+    graph[0].push_back({3, 3});
+    graph[1].push_back({2, 0});
+    graph[1].push_back({3, 2});
+    graph[1].push_back({1, 3});
+    graph[2].push_back({3, 1});
+    graph[2].push_back({5, 4});
+    graph[3].push_back({3, 0});
+    graph[3].push_back({1, 1});
+    graph[3].push_back({2, 4});
+    graph[4].push_back({5, 2});
+    graph[4].push_back({2, 3});
 
-    printf("Enter the adjacency matrix\n");
-    for (i = 0; i < n; i++) {
-        for (j = 0; j < n; j++) {
-            scanf("%d", &a[i][j]);
-            if (a[i][j] == 0 && i != j) {
-                a[i][j] = 999; // Consider 999 as infinity
-            }
-        }
-    }
-
-    printf("\n/*******************************/\n");
-    for (i = 0; i < n; i++) {
-        for (j = 0; j < n; j++) {
-            printf("%d ", a[i][j]);
-        }
-        printf("\n");
-    }
-    printf("\n/*******************************/\n");
-
-    printf("Enter the source vertex\n");
-    scanf("%d", &s);
-
-    dijkstra(n, a, s, dist);
-
-    printf("The shortest path from vertex %d is \n", s);
-
-    for (i = 0; i < n; i++) {
-        if (s != i) {
-            printf("%d -> %d = %d\n", s, i, dist[i]);
-        }
-    }
+    prim(graph, 0);
 
     return 0;
 }
 
-output:
-0 10 6 0
-10 0 0 1
-6 0 0 2
-0 1 2 0
 
 
-  #include <stdio.h>
-#include <stdlib.h>
+#include <iostream>
+#include <vector>
+#include <queue>
+#include <utility>
+#include <climits>
 
-int n, W, w[10], v[10], V[10][10], x[10];
+using namespace std;
 
-// Max function
-int max(int a, int b) {
-    return (a > b) ? a : b;
+typedef pair<int, int> P; // (weight, vertex)
+
+void dijkstra(vector<vector<P>>& graph, int start) {
+    int n = graph.size();
+    vector<int> dist(n, INT_MAX);
+    priority_queue<P, vector<P>, greater<P>> pq;
+
+    dist[start] = 0;
+    pq.push({0, start});
+
+    while (!pq.empty()) {
+        int u = pq.top().second;
+        pq.pop();
+
+        for (const auto& edge : graph[u]) {
+            int v = edge.second;
+            int wt = edge.first;
+            if (dist[v] > dist[u] + wt) {
+                dist[v] = dist[u] + wt;
+                pq.push({dist[v], v});
+            }
+        }
+    }
+
+    for (int i = 0; i < n; ++i) {
+        cout << "Vertex: " << i << " - Distance: " << dist[i] << endl;
+    }
 }
 
-// Function to solve the Knapsack problem
-void Knapsack() {
-    int i, j;
+int main() {
+    int n = 5; // Number of vertices
+    vector<vector<P>> graph(n);
 
-    // Building the table V[][] in bottom-up manner
-    for (i = 0; i <= n; i++) {
-        for (j = 0; j <= W; j++) {
-            if (i == 0 || j == 0) {
-                V[i][j] = 0;
-            } else if (w[i] <= j) {
-                V[i][j] = max(V[i - 1][j], V[i - 1][j - w[i]] + v[i]);
+    graph[0].push_back({10, 1});
+    graph[0].push_back({5, 3});
+    graph[1].push_back({1, 2});
+    graph[1].push_back({2, 3});
+    graph[2].push_back({4, 4});
+    graph[3].push_back({2, 1});
+    graph[3].push_back({9, 2});
+    graph[3].push_back({2, 4});
+    graph[4].push_back({6, 0});
+    graph[4].push_back({7, 2});
+
+    dijkstra(graph, 0);
+
+    return 0;
+}
+
+
+#include <iostream>
+#include <vector>
+#include <algorithm>
+
+using namespace std;
+
+int knapsack(int W, const vector<int>& wt, const vector<int>& val) {
+    int n = wt.size();
+    vector<vector<int>> dp(n + 1, vector<int>(W + 1, 0));
+
+    for (int i = 1; i <= n; ++i) {
+        for (int w = 0; w <= W; ++w) {
+            if (wt[i - 1] <= w) {
+                dp[i][w] = max(dp[i - 1][w], dp[i - 1][w - wt[i - 1]] + val[i - 1]);
             } else {
-                V[i][j] = V[i - 1][j];
+                dp[i][w] = dp[i - 1][w];
             }
         }
     }
-}
 
-// Function to print the solution
-void printSolution() {
-    int i = n, j = W;
-
-    while (i > 0 && j > 0) {
-        if (V[i][j] != V[i - 1][j]) {
-            x[i] = 1;
-            j = j - w[i];
-        } else {
-            x[i] = 0;
-        }
-        i--;
-    }
+    return dp[n][W];
 }
 
 int main() {
-    int i;
+    int W = 50; // Knapsack capacity
+    vector<int> wt = {10, 20, 30};
+    vector<int> val = {60, 100, 120};
 
-    printf("Enter number of objects: ");
-    scanf("%d", &n);
-
-    printf("Enter Knapsack Capacity: ");
-    scanf("%d", &W);
-
-    printf("Enter the weights of the objects:\n");
-    for (i = 1; i <= n; i++) {
-        scanf("%d", &w[i]);
-    }
-
-    printf("Enter the profits of the objects:\n");
-    for (i = 1; i <= n; i++) {
-        scanf("%d", &v[i]);
-    }
-
-    Knapsack();
-    printSolution();
-
-    printf("Objects included in the knapsack:\n");
-    printf("Object \t Weight \t Profit\n");
-    for (i = 1; i <= n; i++) {
-        if (x[i] == 1) {
-            printf("%d \t %d \t %d\n", i, w[i], v[i]);
-        }
-    }
-
-    printf("The maximum profit is %d\n", V[n][W]);
+    cout << "Max value: " << knapsack(W, wt, val) << endl;
 
     return 0;
 }
-
-output:
-Running Example:
-Enter the number of items: 4
-Enter the weights of the items: 2 3 4 5
-Enter the values (profits) of the items: 3 4 5 6
-Enter the capacity of the knapsack: 5
